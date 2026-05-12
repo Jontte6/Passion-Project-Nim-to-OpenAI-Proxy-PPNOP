@@ -40,6 +40,7 @@ const ENABLE_THINKING_MODE = false;
 const MODEL_MAPPING = {
   'gpt-3.5-turbo': 'nvidia/nemotron-3-super-120b-a12b',
   'gpt-4': 'qwen/qwen3-coder-480b-a35b-instruct',
+  'gpt-3.5': 'qwen/qwen3.5-397b-a17b',
   'gpt-4-turbo': 'moonshotai/kimi-k2.6',
   'gpt-4o': 'deepseek-ai/deepseek-v4-pro',
   'claude-3-opus': 'openai/gpt-oss-120b',
@@ -51,9 +52,12 @@ const MODEL_MAPPING = {
   'mistral': 'mistralai/mistral-large-3-675b-instruct-2512',
   'mistral-turbo': 'mistralai/mistral-medium-3.5-128b',
   'mistral-pro': 'mistralai/mistral-small-4-119b-2603',
+  'mistral-nemo': 'mistralai/mistral-nemotron'
   'google-light': 'google/gemma-4-31b-it',
   'google-lightest': 'google/gemma-2-2b-it',
-  'google-lighter': 'google/gemma-3n-e4b-it'
+  'google-lighter': 'google/gemma-3n-e4b-it',
+  'm2.7': 'minimaxai/minimax-m2.7',
+  'step-3.5-flash': 'stepfun-ai/step-3.5-flash'
 };
 
 // Fallback chain
