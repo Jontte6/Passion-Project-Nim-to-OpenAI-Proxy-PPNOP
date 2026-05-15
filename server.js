@@ -108,33 +108,49 @@ async function validateModels() {
     console.log('[VALIDATION] Skipped (SKIP_VALIDATION=true)');
     return;
   }
-  
+
   console.log('[VALIDATION] Checking model availability...');
   const invalid = [];
-  
+
   for (const [alias, nimId] of Object.entries(MODEL_MAPPING)) {
-    try {
-      await axios.post(
-        `${NIM_API_BASE}/chat/completions`,
-        {
-          model: nimId,
-          messages: [{ role: 'user', content: 'hi' }],
-          max_tokens: 1
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${NIM_API_KEY}`,
-            'Content-Type': 'application/json'
+    let succeeded = false;
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        await axios.post(
+          `${NIM_API_BASE}/chat/completions`,
+          {
+            model: nimId,
+            messages: [{ role: 'user', content: 'hi' }],
+            max_tokens: 1
           },
-          timeout: 30000
+          {
+            headers: {
+              Authorization: `Bearer ${NIM_API_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            timeout: 60000
+          }
+        );
+        console.log(`[VALIDATION] ✓ ${alias} → ${nimId}`);
+        succeeded = true;
+        break;
+      } catch (err) {
+        const isTimeout = err.code === 'ECONNABORTED' || err.message?.includes('timeout');
+        const isLastAttempt = attempt === 2;
+
+        if (isTimeout && !isLastAttempt) {
+          console.warn(`[VALIDATION] Timeout on ${alias}, retrying...`);
+          continue;
         }
-      );
-      console.log(`[VALIDATION] ✓ ${alias} → ${nimId}`);
-    } catch (err) {
-      const status = err.response?.status;
-      const msg = err.response?.data?.error?.message || err.message;
-      console.error(`[VALIDATION] ✗ ${alias} → ${nimId} | ${status} ${msg}`);
-      invalid.push({ alias, nimId, error: `${status} ${msg}` });
+
+        if (isLastAttempt) {
+          const status = err.response?.status;
+          const msg = err.response?.data?.error?.message || err.message;
+          console.error(`[VALIDATION] ✗ ${alias} → ${nimId} | ${status} ${msg}`);
+          invalid.push({ alias, nimId, error: `${status} ${msg}` });
+        }
+      }
     }
   }
 
